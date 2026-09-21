@@ -1,0 +1,34 @@
+Translator
+
+The general idea behind this app is one where I arrive at the home page and it presents me with a magic link login, using classic 
+click this link sends an email through resend and once the user clicks on the link redirects to the logged in gated app.
+
+For the magic link, consider what the cool kids use, ideally what Kent C Dodds does on his older React courses, unless there is a better way.
+
+Now for the app, it presents the user with a free type edit box similar to the chatgpt or claude chat window, but inside the edit box it should only allow pre defined words and using a typeahead concept, where the actual words are in black, and the predicted next word is in greyed out text. I want you to use your judgement here as to the implementation of this, as I have also in the past used react select but then it presents choices as a dropdown. The choices would come from a pre approved bucket of words.
+
+I want to run a grill-me session on the best way to manage these is it in a flatfile or yml file, or a more structured table in a mysql database, I want to experiment with a mysql in railway setup. The idea behind this would be to have a constrained way to build a prompt for later translation requests.
+
+Some example prompts which add to the already baked in system prompt could be:
+
+You are a Dutch teacher help me to write an email to my college profressor.
+You are a French businessman and give me advice to write an informal letter to the business adminstration
+You are a german friend helping me to write a speech in german for my friends birthday party
+You are an italian real estate agent help me to write a motivation letter to buy the house in Italian
+
+So there are some examples, see if you can find a logical compartmentalisation, I dont really want the user to have full free typing reign, but I also want some flexibility in the wording, but placeholders would help, so definitely a list of all languages, and as soon as user type you are a Du (it would fill in Dutch, or Ger, German etc, or just to select from a long list, like in google translate. Again grill-me on wether TLLM from Google would work or a standard Open AI api call or Anthropic call or a combination, or would Jev Typesafe work???
+
+So then when system prompt done, the next tab or enter key should position cursor in the actual language translation box, the user types their email, letter text whatever
+
+So example would be: Dear Mr Jones, thank you for the time today on the phone. I would be interested in the work schedule you proopose so on and so forth.
+
+then tab out to a translate button and the text would be sent as LLM api call with system prompt and return the result which is displayed to user. A handy copy link or icon which copies the translated text.
+
+Future iterations could be saving a chat or prompt to quickly call it up. Having settings to save the default from and to language. Include this in version 2 of app. but mvp should be english only to whatever other language. 
+
+The app should be built using typescript, zod, react, trpc, as a monorepo to allow for expansion in the classic app client, server, shared structure. Use mysql in the first instance unless grill me suggests otherwise.
+
+The interface should be a clean but colorful theme, use tailwindcss and presets. I would go with a color theme along the lines of this Dahlia Midnight Moon flower, find a picture of it and use all the colours you see.
+
+Your first job, is to collect all the requirements into a Claude.md file for steady system prompt, a Vision.md document to follow the north star, include hard constraints in both to avoid app drift. A TasksV1.md file to kick thinkgs off which will include all the phases, and sub tasks which you can build out later step by step.
+
