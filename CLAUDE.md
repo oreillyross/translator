@@ -2,7 +2,9 @@
 
 Standing system prompt for every session in this repo. Read this before writing code.
 The north star lives in `docs/Vision.md`. The plan of record lives in `docs/TasksV1.md`.
-Original intent is preserved verbatim in `docs/scratchpad` — it is the source, this file is the contract.
+Original intent is preserved verbatim in `docs/scratchpad` — it is the source, this file is
+the contract. Where the two disagree, this file wins: it records decisions made after the
+scratchpad was written.
 
 ---
 
@@ -17,22 +19,30 @@ translated result comes back and is displayed with a one-click copy.
 
 ---
 
-## 2. Hard constraints (non-negotiable — these exist to stop app drift)
+## 2. Hard constraints
+
+**"HC" means Hard Constraint.** They are numbered so a change can be challenged precisely —
+"that breaks HC-3" rather than "that breaks the thing about the two inputs." They exist to
+stop app drift, and they are non-negotiable: a proposed change that breaks one is out of
+scope regardless of merit, until the constraint itself is edited here first.
 
 **Product**
 
 - HC-1 — The prompt composer is **constrained**. No free typing in it, ever. Every accepted
   token comes from an approved vocabulary bucket bound to a template slot.
-- HC-2 — The body box **is** free text. Do not constrain it.
+- HC-2 — The body box **is** free text. Do not constrain it. The composer sets persona and
+  speech act; every specific fact belongs in the body.
 - HC-3 — Exactly two text inputs and one action. No chat history UI, no multi-turn thread,
   no streaming conversation in v1.
 - HC-4 — MVP is **English → one target language**. Source language is hardcoded English.
-  Language pair settings and saved prompts are **v2**, explicitly out of scope for v1.
+  Language-pair settings, saved prompts and a settings UI of any kind are **v2**, explicitly
+  out of scope for v1.
 - HC-5 — Keyboard flow is a first-class feature: compose prompt → Tab/Enter → body →
   Tab → Translate. It must work end to end without a mouse.
-- HC-6 — Ghost-text prediction renders as grey inline text in the same box. It is not a
-  dropdown. `react-select` and dropdown-first pickers are rejected for the composer.
-  (A searchable list is permitted **only** for the language slot, google-translate style.)
+- HC-6 — Ghost-text prediction renders as grey inline text in the same box, completing
+  **the current slot only** — never the rest of the line. It is not a dropdown;
+  `react-select` and dropdown-first pickers are rejected. There are no exceptions to this:
+  every slot, including language, resolves by inline typeahead.
 - HC-7 — One translation call per Translate press. No agent loops, no tool calling, no
   multi-step chains in v1.
 
@@ -40,30 +50,37 @@ translated result comes back and is displayed with a one-click copy.
 
 - HC-8 — TypeScript everywhere. No `.js` source files, no `any` in committed code.
 - HC-9 — Zod is the single source of truth for every boundary: tRPC inputs/outputs, env
-  vars, LLM response parsing, seed-file parsing. Types are inferred from schemas, never
-  hand-written alongside them.
+  vars, LLM response parsing, YAML vocabulary parsing. Types are inferred from schemas,
+  never hand-written alongside them.
 - HC-10 — tRPC is the only client↔server transport. No REST routes except the auth
   callback and a health check.
-- HC-11 — pnpm monorepo, `apps/client` + `apps/server` + `packages/shared` (+ `packages/db`).
+- HC-11 — pnpm monorepo, `apps/client` + `apps/server` + `packages/shared` + `packages/db`.
   Shared code goes in a package, never imported across app boundaries by relative path.
-- HC-12 — MySQL on Railway is the datastore. Drizzle is the ORM. No Postgres, no SQLite,
-  no Prisma, unless a grill session overturns it and this line is edited first.
+- HC-12 — **Postgres on Railway** via Drizzle ORM. No MySQL, no SQLite, no Prisma. The
+  database holds exactly three tables — `user`, `session`, `magic_token` — and nothing else.
+  The vocabulary is **not** in the database (HC-20).
 - HC-13 — Tailwind CSS with the Dahlia "Midnight Moon" palette in §5. No second design
   system, no component library that ships its own opinionated theme.
-- HC-14 — Auth is passwordless magic link over Resend. No passwords, no OAuth in v1.
+- HC-14 — Auth is passwordless magic link over Resend, hand-rolled per §4. No passwords,
+  no OAuth, no third-party auth library in v1.
 - HC-15 — Secrets live in env vars validated by Zod at boot. The server fails fast and loud
   on a missing var. No API key ever reaches the client bundle.
-- HC-16 — The LLM provider sits behind one interface in `packages/shared` (or a
-  `server/llm` module). Swapping providers must touch one file.
+- HC-16 — The LLM provider sits behind one adapter interface. Swapping providers touches one
+  file; swapping *models* touches one env var. To keep that true, **the adapter sends no
+  `thinking` and no `effort` parameter** — those differ in shape between model tiers and
+  would turn a string swap into a code change.
+- HC-20 — The vocabulary lives in **YAML in the repo**, parsed through Zod and held in
+  memory. It is served to the client once per load and resolved entirely client-side. No
+  vocabulary tables, no per-keystroke network calls.
 
 **Process**
 
 - HC-17 — Ship the smallest working vertical slice. Prefer a working thin path over a
   complete design.
-- HC-18 — A decision marked `[GRILL]` below is **not settled**. Do not build past it on a
-  guess — surface it and get a ruling.
-- HC-19 — Anything not in `docs/TasksV1.md` is not in v1. New ideas get appended to a
-  "V2 parking lot", not implemented.
+- HC-18 — Decisions in §4 are settled. Reopening one means editing this file in the same
+  commit, not working around it.
+- HC-19 — Anything not in `docs/TasksV1.md` is not in v1. New ideas get appended to the
+  Vision.md "v2 parking lot", not implemented.
 
 ---
 
@@ -76,64 +93,106 @@ translated result comes back and is displayed with a one-click copy.
 | Client | React + Vite |
 | Transport | tRPC v11 + TanStack Query |
 | Server | Node + Fastify tRPC adapter |
-| DB | MySQL (Railway) via Drizzle ORM + `mysql2` |
-| Auth | Magic link (Resend) — see §4 |
+| DB | **Postgres (Railway)** via Drizzle ORM + `postgres` (postgres.js) |
+| Auth | Hand-rolled magic link over Resend — see §4 |
+| LLM | Anthropic SDK (`@anthropic-ai/sdk`) behind the HC-16 adapter |
 | Styling | Tailwind CSS |
 | Package mgr | pnpm workspaces |
-| Hosting | Railway (server + MySQL); client static or same service |
+| Hosting | Railway (server + Postgres); client static or same service |
 
 ```
 translator/
 ├─ apps/
 │  ├─ client/      React + Vite + Tailwind
-│  └─ server/      Fastify + tRPC + auth + LLM adapter
+│  └─ server/      Fastify + tRPC + auth + LLM adapter + YAML vocabulary
 ├─ packages/
-│  ├─ shared/      Zod schemas, tRPC router types, prompt-grammar types
-│  └─ db/          Drizzle schema, migrations, seed
+│  ├─ shared/      Zod schemas, grammar types, resolveGrammar()
+│  └─ db/          Drizzle schema + migrations (3 tables)
 └─ docs/           Vision.md, TasksV1.md, scratchpad
 ```
 
 ---
 
-## 4. Decisions carried over from the scratchpad
+## 4. Settled decisions
 
-**Magic link.** The Kent C. Dodds pattern is: sign a short-lived payload server-side, email
-the URL, verify the signature on click, then set an httpOnly session cookie. That pattern is
-correct; hand-rolling it in 2026 is not the best use of the first sprint.
-**Recommendation: Better Auth's magic-link plugin with the Drizzle/MySQL adapter and a Resend
-sender.** Same semantics (single-use, short TTL, httpOnly cookie), maintained by someone else.
-Fallback if it fights the monorepo: hand-rolled signed token, 15-min TTL, single-use row in
-a `magic_token` table. `[GRILL]`
+Ruled on in the grill session of 2026-09-21. These are answers, not recommendations.
 
-**Vocabulary storage.** Neither pure flatfile nor DB-only.
-**Recommendation: YAML in the repo is the authored source of truth; a seed script parses it
-through Zod and loads it into MySQL; the app reads MySQL at runtime.** Version-controlled and
-reviewable when authoring, queryable and editable-without-deploy later. `[GRILL]`
+### 4.1 Datastore — Postgres, not MySQL
 
-**Prompt compartmentalisation.** The vocabulary is not a flat bag of words — it is a
-**grammar**. A template is an ordered list of slots; each slot points at a bucket of approved
-terms; the typeahead at any cursor position offers only the current slot's bucket. This is
-what makes constrained-but-flexible work.
+The scratchpad wanted to experiment with MySQL on Railway. Nothing in this app needs a
+MySQL-specific feature, Postgres is the better-trodden Drizzle+Railway path, and once the
+vocabulary moved out of the database (4.2) the only thing left in it is three auth tables.
+**Postgres.**
 
-Template: `You are a {NATIONALITY} {ROLE}, help me to write {ARTIFACT} {AUDIENCE} in {LANGUAGE}.`
+### 4.2 Vocabulary — YAML only, no database
 
-| Slot | Bucket examples |
-|---|---|
-| `NATIONALITY` | Dutch, French, German, Italian … (derived from the language list) |
-| `ROLE` | teacher, businessman, friend, real estate agent, lawyer … |
-| `ARTIFACT` | an email, an informal letter, a speech, a motivation letter … |
-| `AUDIENCE` | to my college professor, to the business administration, for my friend's birthday party … |
-| `LANGUAGE` | full ISO language list (searchable slot — the one HC-6 exception) |
-| `REGISTER` | formal / informal (optional slot) |
+Authored as YAML in the repo, parsed through Zod at server boot, held in memory. Database
+tables were rejected: their only benefit is editing without a deploy, and the single user of
+this app is also its only author. This deletes four tables, a seed script and a migration
+path. A DB-backed vocabulary is a v2 migration if an admin UI ever matters.
 
-All four scratchpad examples decompose cleanly into this grammar. That is the acceptance test
-for any change to it.
+### 4.3 LLM — Anthropic, default Sonnet 5
 
-**LLM provider.** Google's translation-tuned models are translation-only and cannot honour a
-persona system prompt; this app is persona-driven rewriting, not literal translation.
-**Recommendation: Anthropic Claude behind the §2 HC-16 adapter interface**, with an OpenAI
-implementation of the same interface as a swap-in. "Jev Typesafe" is unverified — parked
-until the user explains what it is. `[GRILL]`
+Google's translation-tuned models cannot honour a persona system prompt, and this app is
+persona-driven rewriting rather than literal translation. **"Jev Typesafe" is resolved**: it
+is a typed classifier (yes/no, pick-one, score-on-a-rubric, returning calibrated
+probabilities) and explicitly not for generation — it cannot translate. It is out for v1; it
+would be a reasonable v2 output-quality gate.
+
+- Default model: **`claude-sonnet-5`** (no date suffix — the model IDs are complete as-is).
+- Swap via the `ANTHROPIC_MODEL` env var, Zod-validated at boot. No settings UI (HC-4).
+- No `thinking`, no `effort` in the request (HC-16) — those parameters differ in shape
+  between model tiers, and omitting them is what keeps the swap a one-variable change.
+
+### 4.4 Magic link — hand-rolled
+
+No Better Auth, no third-party auth library. The mechanics are owned here:
+
+- **Token**: 32 bytes from `crypto.randomBytes`, base64url-encoded into the URL. Only the
+  **SHA-256 hash** is stored — a database leak yields nothing usable.
+- **Lifetime**: 15-minute TTL, single use, row deleted on redemption.
+- **Not a JWT**: single-use and revocation both need a row anyway, so a stateless token buys
+  nothing and adds a signing-key footgun.
+- **No signup flow**: the first successful redemption creates the user.
+- **No enumeration**: every email address gets an identical response, known or not.
+- **Session**: opaque session ID in an httpOnly + secure + sameSite=lax cookie, 30-day
+  rolling expiry, backed by the `session` row so it can be revoked.
+
+### 4.5 The prompt grammar
+
+The vocabulary is a **grammar**, not a flat word list: one template, an ordered list of
+slots, each slot bound to a bucket of approved terms. The typeahead at any cursor position
+offers only the current slot's bucket. This is what makes constrained-but-flexible work.
+
+```
+You are {ARTICLE} {LANGUAGE} {ROLE}. {TASK_VERB} me to write {ARTIFACT} {CONTEXT}.
+```
+
+| Slot | Notes | Examples |
+|---|---|---|
+| `LANGUAGE` | Sets the persona's nationality **and** the target language — one value, never two. Each term carries its own `article` (`a`/`an`) as data. | Dutch, French, German, Italian |
+| `ROLE` | | teacher, businessman, friend, real estate agent |
+| `TASK_VERB` | The speech act. Needed because not every prompt is "help me". | help, give advice |
+| `ARTIFACT` | | an email, an informal letter, a speech, a motivation letter |
+| `CONTEXT` | A trailing prepositional phrase. **Not** "audience" — it may be a person, an occasion or a purpose. | to my college professor, to the business administration, for my friend's birthday party, to buy the house |
+
+Rules that fall out of this:
+
+- **One template only.** Multiple templates would need a picker, which breaks HC-3.
+- **No trailing "in {language}".** Redundant once `LANGUAGE` opens the sentence. The
+  server-side base prompt carries `Write your response entirely in {language}.` explicitly.
+- **Articles are data, not logic.** `an Italian`, `a Dutch` — carried on the term, so there
+  are no inflection rules to get wrong.
+- **Literals are furniture.** `You are `, `. `, ` me to write ` are pre-rendered and
+  non-editable; the cursor starts after `You are `. The user never types them.
+- **Acceptance test**: all four scratchpad example prompts must decompose into a valid path
+  through this grammar. They do. Any change to the grammar must keep that true.
+
+### 4.6 Seed vocabulary size for v1
+
+~40 languages, ~12 roles, ~4 task verbs, ~10 artifacts, ~15 contexts — about 81 terms, one
+authoring sitting, yielding 7,200 distinct prompts per language. Do not seed all 180 ISO
+languages up front.
 
 ---
 
@@ -154,9 +213,9 @@ a gold center, and green leaf. Dark-first, colourful, not neon.
 --dm-leaf:     #2E7D5B;  /* success / valid-token */
 ```
 
-Committed tokens render in `--dm-cream`; the predicted ghost word renders in
-`--dm-blush` at reduced opacity. Focus ring is always `--dm-gold` (HC-5 depends on the
-user seeing where focus is).
+Committed terms render in `--dm-cream`; non-editable literals sit dimmer; the ghost
+completion renders in `--dm-blush` at reduced opacity. Focus ring is always `--dm-gold`
+(HC-5 depends on the user seeing where focus is).
 
 ---
 
@@ -165,4 +224,4 @@ user seeing where focus is).
 - Commit in vertical slices that leave the app runnable.
 - Every tRPC procedure has a Zod input and a Zod output. No exceptions.
 - Do not add a dependency that duplicates something in §3.
-- When a `[GRILL]` item is settled, edit this file in the same commit that implements it.
+- Reopening a §4 decision means editing §4 in the same commit that changes the code.

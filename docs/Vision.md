@@ -28,12 +28,13 @@ So the app writes the prompt for them, from a menu they can feel their way throu
 Land on the home page. One field, one button: "email me a link". The link arrives, they click,
 they are in.
 
-They see one composer line. They start typing `You are a Du` — the rest of the line ghosts in
-grey ahead of the cursor: `tch teacher, help me to write…`. Tab. Tab again. The persona is
-built in five keystrokes without a single dropdown. Enter drops the cursor into the big box.
-They type their actual email in plain English, the way they'd say it out loud. Tab to
-**Translate**. The native-sounding version appears. One click copies it. They paste it and
-send it.
+They see one composer line, already reading `You are ` with the cursor waiting after it.
+They type `du` — `tch` ghosts in grey ahead of the cursor. Tab: it commits, and the line
+becomes `You are a Dutch ` on its own, article and all. `tea` → `cher`. Tab. `em` →
+`ail`. Tab. Four slots, a dozen keystrokes, not one dropdown, and at no point were they
+shown a choice they had to read. Enter drops the cursor into the big box. They type their
+actual email in plain English, the way they'd say it out loud. Tab to **Translate**. The
+native-sounding version appears. One click copies it. They paste it and send it.
 
 Under a minute, no thinking about prompts, no cursor-and-dropdown fumbling.
 
@@ -78,35 +79,42 @@ dahlia. The app should feel like a considered object, not an internal tool.
    including checking their email.
 2. A returning user does it in under 60 seconds.
 3. Zero prompts reach the model that a human would call badly worded — because none can.
-4. Adding a new persona role, artifact type or audience is a data change, not a deploy of
-   new code.
+4. Adding a new persona role, artifact type or context is a one-line YAML change — data,
+   never new code. (It still ships as a commit and a redeploy; that's accepted for v1.)
 5. A native speaker reading the output cannot tell it was machine-produced.
 
 ---
 
 ## Hard constraints (mirrored from CLAUDE.md §2 — the anti-drift list)
 
-These are repeated here on purpose. If a proposed change breaks one of these, it is out of
-scope regardless of how good the idea is.
+"HC" means Hard Constraint; the numbers live in CLAUDE.md §2 and are repeated here on
+purpose. If a proposed change breaks one of these, it is out of scope regardless of how good
+the idea is — until the constraint itself is edited there first.
 
 - Prompt composer is constrained vocabulary only — no free typing.
-- Ghost-text inline prediction, not a dropdown. (Language slot is the one exception.)
-- Body box is free text.
+- Ghost text completes the current slot only, inline and grey, never a dropdown and never
+  the rest of the line.
+- Body box is free text. The composer sets persona and speech act; every specific fact goes
+  in the body.
 - Two inputs, one action. No chat UI.
-- MVP is English → one target language. Language-pair settings and saved prompts are v2.
+- MVP is English → one target language. Language-pair settings, saved prompts and any
+  settings UI are v2.
 - Full keyboard flow: compose → Tab/Enter → body → Tab → Translate.
 - One LLM call per press. No agent loops.
-- TypeScript + Zod + React + tRPC, pnpm monorepo (client / server / shared).
-- MySQL on Railway via Drizzle.
-- Magic link over Resend. No passwords, no OAuth.
+- TypeScript + Zod + React + tRPC, pnpm monorepo (client / server / shared / db).
+- Postgres on Railway via Drizzle — three tables only (`user`, `session`, `magic_token`).
+- Vocabulary is YAML in the repo, in memory, resolved client-side. Never in the database.
+- Hand-rolled magic link over Resend. No passwords, no OAuth, no auth library.
+- Anthropic behind one adapter, default `claude-sonnet-5`, swapped by env var alone.
 - Tailwind with the Midnight Moon palette. One design system.
-- LLM behind a single swappable adapter.
-
----
 
 ## The v2 parking lot (write ideas here; do not build them)
 
 - Save and recall a composed prompt.
+- A settings tab (model choice, default languages) — v1 uses env vars only.
+- Multiple prompt templates, with a picker.
+- Move the vocabulary from YAML into the database, behind an admin UI.
+- Use Jev (typed classifier) as an output-quality gate on the translation.
 - Default from/to language in settings; non-English source languages.
 - Translation history per user.
 - Side-by-side original vs. translation with per-paragraph alignment.
