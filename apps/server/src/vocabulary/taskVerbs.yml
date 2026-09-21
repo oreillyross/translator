@@ -1,0 +1,10 @@
+id: taskVerbs
+terms:
+  - value: help
+    display: Help
+  - value: advise
+    display: Advise
+  - value: guide
+    display: Guide
+  - value: assist
+    display: Assist

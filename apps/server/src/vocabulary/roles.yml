@@ -1,0 +1,26 @@
+id: roles
+terms:
+  - value: teacher
+    display: teacher
+  - value: businessman
+    display: businessman
+  - value: friend
+    display: friend
+  - value: real_estate_agent
+    display: real estate agent
+  - value: colleague
+    display: colleague
+  - value: lawyer
+    display: lawyer
+  - value: doctor
+    display: doctor
+  - value: neighbour
+    display: neighbour
+  - value: landlord
+    display: landlord
+  - value: HR_manager
+    display: HR manager
+  - value: customer_service_agent
+    display: customer service agent
+  - value: family_member
+    display: family member

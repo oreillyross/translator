@@ -1,0 +1,24 @@
+id: v1-template
+trailingLiteral: "."
+slots:
+  - id: language
+    bucketId: languages
+    prefix: "You are "
+    suffix: ""
+    rendersArticle: true
+  - id: role
+    bucketId: roles
+    prefix: " "
+    suffix: ""
+  - id: taskVerb
+    bucketId: taskVerbs
+    prefix: ". "
+    suffix: ""
+  - id: artifact
+    bucketId: artifacts
+    prefix: " me to write "
+    suffix: ""
+  - id: context
+    bucketId: contexts
+    prefix: " "
+    suffix: ""

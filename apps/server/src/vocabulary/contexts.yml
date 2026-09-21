@@ -1,0 +1,32 @@
+id: contexts
+terms:
+  - value: to_my_college_professor
+    display: to my college professor
+  - value: to_the_business_administration
+    display: to the business administration
+  - value: for_my_friends_birthday_party
+    display: for my friend's birthday party
+  - value: to_buy_the_house
+    display: to buy the house
+  - value: to_my_landlord
+    display: to my landlord
+  - value: for_a_job_application
+    display: for a job application
+  - value: to_a_potential_client
+    display: to a potential client
+  - value: for_a_wedding_toast
+    display: for a wedding toast
+  - value: to_customer_support
+    display: to customer support
+  - value: for_a_leaving_colleague
+    display: for a leaving colleague
+  - value: to_my_bank
+    display: to my bank
+  - value: for_a_school_application
+    display: for a school application
+  - value: to_a_hotel
+    display: to a hotel
+  - value: for_a_funeral
+    display: for a funeral
+  - value: to_a_local_council
+    display: to a local council

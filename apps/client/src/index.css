@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* Gold focus ring everywhere (HC-5, CLAUDE.md §5). */
+:focus-visible {
+  outline: 2px solid theme("colors.dm-gold");
+  outline-offset: 2px;
+}
