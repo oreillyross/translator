@@ -1,0 +1,22 @@
+id: artifacts
+terms:
+  - value: email
+    display: an email
+  - value: informal_letter
+    display: an informal letter
+  - value: speech
+    display: a speech
+  - value: motivation_letter
+    display: a motivation letter
+  - value: formal_letter
+    display: a formal letter
+  - value: text_message
+    display: a text message
+  - value: cover_letter
+    display: a cover letter
+  - value: thank_you_note
+    display: a thank you note
+  - value: complaint_letter
+    display: a complaint letter
+  - value: invitation
+    display: an invitation

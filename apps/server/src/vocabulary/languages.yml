@@ -1,0 +1,128 @@
+id: languages
+terms:
+  - value: afrikaans
+    display: Afrikaans
+    article: a
+  - value: albanian
+    display: Albanian
+    article: an
+  - value: arabic
+    display: Arabic
+    article: an
+  - value: armenian
+    display: Armenian
+    article: an
+  - value: bengali
+    display: Bengali
+    article: a
+  - value: bulgarian
+    display: Bulgarian
+    article: a
+  - value: catalan
+    display: Catalan
+    article: a
+  - value: chinese
+    display: Chinese
+    article: a
+  - value: croatian
+    display: Croatian
+    article: a
+  - value: czech
+    display: Czech
+    article: a
+  - value: danish
+    display: Danish
+    article: a
+  - value: dutch
+    display: Dutch
+    article: a
+  - value: english
+    display: English
+    article: an
+  - value: estonian
+    display: Estonian
+    article: an
+  - value: finnish
+    display: Finnish
+    article: a
+  - value: french
+    display: French
+    article: a
+  - value: georgian
+    display: Georgian
+    article: a
+  - value: german
+    display: German
+    article: a
+  - value: greek
+    display: Greek
+    article: a
+  - value: hebrew
+    display: Hebrew
+    article: a
+  - value: hindi
+    display: Hindi
+    article: a
+  - value: hungarian
+    display: Hungarian
+    article: a
+  - value: icelandic
+    display: Icelandic
+    article: an
+  - value: indonesian
+    display: Indonesian
+    article: an
+  - value: irish
+    display: Irish
+    article: an
+  - value: italian
+    display: Italian
+    article: an
+  - value: japanese
+    display: Japanese
+    article: a
+  - value: korean
+    display: Korean
+    article: a
+  - value: latvian
+    display: Latvian
+    article: a
+  - value: lithuanian
+    display: Lithuanian
+    article: a
+  - value: norwegian
+    display: Norwegian
+    article: a
+  - value: polish
+    display: Polish
+    article: a
+  - value: portuguese
+    display: Portuguese
+    article: a
+  - value: romanian
+    display: Romanian
+    article: a
+  - value: russian
+    display: Russian
+    article: a
+  - value: serbian
+    display: Serbian
+    article: a
+  - value: slovak
+    display: Slovak
+    article: a
+  - value: spanish
+    display: Spanish
+    article: a
+  - value: swedish
+    display: Swedish
+    article: a
+  - value: turkish
+    display: Turkish
+    article: a
+  - value: ukrainian
+    display: Ukrainian
+    article: a
+  - value: vietnamese
+    display: Vietnamese
+    article: a

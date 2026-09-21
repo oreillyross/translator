@@ -26,20 +26,20 @@ on and written up in CLAUDE.md §4; no `[GRILL]` tags remain in the repo.
 
 ## Phase 1 — Monorepo skeleton
 
-- [ ] 1.1 `pnpm` workspace at root; `apps/client`, `apps/server`, `packages/shared`,
+- [x] 1.1 `pnpm` workspace at root; `apps/client`, `apps/server`, `packages/shared`,
       `packages/db`. Root `tsconfig.base.json`, strict mode on.
-- [ ] 1.2 `packages/shared` — Zod-first: env schema, shared primitives. Builds and is
+- [x] 1.2 `packages/shared` — Zod-first: env schema, shared primitives. Builds and is
       importable from both apps.
-- [ ] 1.3 `apps/server` — Fastify + tRPC v11 adapter, a `health.ping` procedure with Zod
+- [x] 1.3 `apps/server` — Fastify + tRPC v11 adapter, a `health.ping` procedure with Zod
       input and output.
-- [ ] 1.4 `apps/client` — Vite + React + TS, tRPC client + TanStack Query, calls
+- [x] 1.4 `apps/client` — Vite + React + TS, tRPC client + TanStack Query, calls
       `health.ping` and renders the result.
-- [ ] 1.5 Tailwind wired into the client with the Midnight Moon CSS variables from
+- [x] 1.5 Tailwind wired into the client with the Midnight Moon CSS variables from
       CLAUDE.md §5 exposed as theme tokens.
-- [ ] 1.6 Root scripts: `dev` (both apps), `build`, `typecheck`, `lint`, `test`.
-- [ ] 1.7 Zod-validated env loading; server exits with a readable error on a missing var.
+- [x] 1.6 Root scripts: `dev` (both apps), `build`, `typecheck`, `lint`, `test`.
+- [x] 1.7 Zod-validated env loading; server exits with a readable error on a missing var.
       Includes `ANTHROPIC_MODEL`, defaulting to `claude-sonnet-5`.
-- [ ] 1.8 `.env.example` covering every var (no real secrets committed).
+- [x] 1.8 `.env.example` covering every var (no real secrets committed).
 
 **Exit:** `pnpm dev` serves a themed page that round-trips a typed tRPC call.
 
@@ -50,22 +50,24 @@ on and written up in CLAUDE.md §4; no `[GRILL]` tags remain in the repo.
 Much smaller than originally planned: ruling 0.1 removed the vocabulary from the database
 entirely, so this phase is mostly YAML and one pure function's data model.
 
-- [ ] 2.1 `packages/db` — Drizzle + `postgres` (postgres.js), connection from validated env,
+- [x] 2.1 `packages/db` — Drizzle + `postgres` (postgres.js), connection from validated env,
       migration setup.
-- [ ] 2.2 Provision Postgres on Railway; connect local dev to it.
-- [ ] 2.3 Schema — exactly three tables: `user`, `session`, `magic_token`. Nothing else.
-- [ ] 2.4 Zod grammar schemas in `packages/shared`: `Term` (display text, optional `article`
+- [ ] 2.2 Provision Postgres on Railway; connect local dev to it. *(Deferred — needs a real
+      Railway project/credentials; schema, client and migration tooling are ready to point
+      at it once provisioned.)*
+- [x] 2.3 Schema — exactly three tables: `user`, `session`, `magic_token`. Nothing else.
+- [x] 2.4 Zod grammar schemas in `packages/shared`: `Term` (display text, optional `article`
       on language terms), `Bucket`, `Slot` (ordered, bucket-bound, with its literal
       prefix/suffix), `Template`. Types inferred, never hand-written.
-- [ ] 2.5 `apps/server/vocabulary/*.yml` — the authored source of truth. One file per bucket.
-- [ ] 2.6 Boot-time loader: parse YAML through the 2.4 schemas, fail fast and loud on an
+- [x] 2.5 `apps/server/vocabulary/*.yml` — the authored source of truth. One file per bucket.
+- [x] 2.6 Boot-time loader: parse YAML through the 2.4 schemas, fail fast and loud on an
       invalid file, hold the result in memory.
-- [ ] 2.7 Seed the vocabulary to the §4.6 sizes: ~40 languages (each with its article),
+- [x] 2.7 Seed the vocabulary to the §4.6 sizes: ~40 languages (each with its article),
       ~12 roles, ~4 task verbs, ~10 artifacts, ~15 contexts.
-- [ ] 2.8 Test: each of the four scratchpad example prompts decomposes into a valid
+- [x] 2.8 Test: each of the four scratchpad example prompts decomposes into a valid
       slot/term path through the seeded grammar. This is the grammar's acceptance test and
       it does not get deleted.
-- [ ] 2.9 Test: every language term has an article, and it is correct for vowel-initial
+- [x] 2.9 Test: every language term has an article, and it is correct for vowel-initial
       languages (Italian, Irish, Icelandic, English, Arabic).
 
 **Exit:** the server boots, parses the vocabulary, and rejects a malformed YAML file with a
