@@ -98,13 +98,13 @@ scope regardless of merit, until the constraint itself is edited here first.
 | LLM | Anthropic SDK (`@anthropic-ai/sdk`) behind the HC-16 adapter |
 | Styling | Tailwind CSS |
 | Package mgr | pnpm workspaces |
-| Hosting | Railway (server + Postgres); client static or same service |
+| Hosting | Railway, **one service**: Fastify serves the built client (§4.7) |
 
 ```
 translator/
 ├─ apps/
 │  ├─ client/      React + Vite + Tailwind
-│  └─ server/      Fastify + tRPC + auth + LLM adapter + YAML vocabulary
+│  └─ server/      Fastify + tRPC + auth + LLM adapter + YAML vocabulary + serves client/dist
 ├─ packages/
 │  ├─ shared/      Zod schemas, grammar types, resolveGrammar()
 │  └─ db/          Drizzle schema + migrations (3 tables)
@@ -193,6 +193,25 @@ Rules that fall out of this:
 ~40 languages, ~12 roles, ~4 task verbs, ~10 artifacts, ~15 contexts — about 81 terms, one
 authoring sitting, yielding 7,200 distinct prompts per language. Do not seed all 180 ISO
 languages up front.
+
+### 4.7 Deploy — one Railway service, not two
+
+Railway's monorepo auto-detection offers `@translator/server` and `@translator/client` as
+separate services. **Rejected** in favour of one: the Fastify server serves the built client
+(`apps/client/dist`) as static files, with an SPA fallback to `index.html` for any GET not
+under `/trpc`. Guarded on the directory existing, so local `pnpm dev` — Vite's own dev
+server plus its `/trpc` proxy, no client build present — is unaffected.
+
+The reason is HC-14, not convenience: two services means two subdomains, and the magic-link
+session cookie is `sameSite=lax`. A `lax` cookie does not reliably survive a cross-subdomain
+fetch, which would force `sameSite=none; secure` plus real CORS credential handling — solving
+a problem that same-origin deployment doesn't have in the first place. One service, one
+origin, the cookie policy stays exactly as written in §4.4.
+
+Root `railway.json` builds with `pnpm build` (topological — `packages/db`/`shared` before
+the apps) and starts with `pnpm --filter @translator/server run start`. The Railway
+dashboard's auto-created `@translator/client` service must still be deleted by hand; a file
+in the repo can't do that part.
 
 ---
 

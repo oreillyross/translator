@@ -161,7 +161,11 @@ grammar can be typed, and no keystroke touches the network.
 - [ ] 6.1 Full Midnight Moon pass over every screen; dark-first; responsive down to mobile.
 - [ ] 6.2 Empty / loading / error / offline states everywhere.
 - [ ] 6.3 End-to-end keyboard walkthrough with no mouse (HC-5 acceptance).
-- [ ] 6.4 Deploy server + Postgres to Railway; client build served; env configured in prod.
+- [x] 6.4 Deploy server + Postgres to Railway as **one service** (CLAUDE.md §4.7) — the
+      Fastify server serves the built client same-origin, so the magic-link cookie needs no
+      cross-subdomain config. Root `railway.json` builds and starts it; env configured in
+      prod. Manual step: delete the auto-created `@translator/client` service in the Railway
+      dashboard, since a file in the repo can't do that part.
 - [ ] 6.5 Production magic-link round-trip on the real domain.
 - [ ] 6.6 README: run locally, deploy, and add a new vocabulary term.
 - [ ] 6.7 Basic error monitoring and a health check.
