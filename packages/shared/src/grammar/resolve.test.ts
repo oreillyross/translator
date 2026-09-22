@@ -22,11 +22,14 @@ function commitExample({ language, role, taskVerb, artifact, context }: (typeof 
 describe("resolveGrammar", () => {
   it.each(scratchpadExamples)("decomposes scratchpad example: $name", (example) => {
     const committed = commitExample(example);
-    // After committing every slot the resolution reports completion and the
-    // rendered text plus the trailing literal matches the example verbatim.
+    // After committing every slot (end-of-template) the resolution reports
+    // completion with no live slot/bucket/candidates left, and the rendered
+    // text plus the trailing literal matches the example verbatim.
     const resolution = resolveGrammar(grammar, committed, "");
     expect(resolution.isComplete).toBe(true);
     expect(resolution.slot).toBeNull();
+    expect(resolution.bucket).toBeNull();
+    expect(resolution.candidates).toEqual([]);
     expect(renderCommitted(grammar, committed) + grammar.template.trailingLiteral).toBe(example.expected);
   });
 
@@ -53,15 +56,6 @@ describe("resolveGrammar", () => {
     const resolution = resolveGrammar(grammar, committed, "");
     expect(resolution.slot?.id).toBe("role");
     expect(resolution.bucket?.id).toBe("roles");
-  });
-
-  it("reports completion once every slot is committed (end-of-template)", () => {
-    const committed = commitExample(scratchpadExamples[0]!);
-    const resolution = resolveGrammar(grammar, committed, "");
-    expect(resolution.isComplete).toBe(true);
-    expect(resolution.slot).toBeNull();
-    expect(resolution.bucket).toBeNull();
-    expect(resolution.candidates).toEqual([]);
   });
 
   it("renders the article ahead of the language term and no article for other slots", () => {
