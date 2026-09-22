@@ -77,23 +77,27 @@ readable error.
 
 ## Phase 3 — Magic link auth (hand-rolled)
 
-- [ ] 3.1 Resend account + verified sender domain; API key in env.
-- [ ] 3.2 Request-link endpoint: 32 bytes from `crypto.randomBytes`, base64url into the URL,
+- [x] 3.1 Resend account + verified sender domain; API key in env. *(Env var wired and
+      Zod-validated; creating the actual Resend account/domain is an external manual step —
+      `RESEND_API_KEY`/`RESEND_FROM_EMAIL` are ready to point at it.)*
+- [x] 3.2 Request-link endpoint: 32 bytes from `crypto.randomBytes`, base64url into the URL,
       **only the SHA-256 hash stored**, 15-minute TTL.
-- [ ] 3.3 Identical response for every email address, known or not — no enumeration.
-- [ ] 3.4 Verify-and-redirect callback: single use, row deleted on redemption, expired and
+- [x] 3.3 Identical response for every email address, known or not — no enumeration.
+- [x] 3.4 Verify-and-redirect callback: single use, row deleted on redemption, expired and
       already-used both fail with a readable message.
-- [ ] 3.5 First successful redemption creates the user. No separate signup flow.
-- [ ] 3.6 Session: opaque ID in an httpOnly + secure + sameSite=lax cookie, 30-day rolling
+- [x] 3.5 First successful redemption creates the user. No separate signup flow.
+- [x] 3.6 Session: opaque ID in an httpOnly + secure + sameSite=lax cookie, 30-day rolling
       expiry, backed by the `session` row.
-- [ ] 3.7 Branded email template (Midnight Moon), plain-text fallback, clear expiry copy.
-- [ ] 3.8 tRPC context resolves the session; `protectedProcedure` throws `UNAUTHORIZED`
+- [x] 3.7 Branded email template (Midnight Moon), plain-text fallback, clear expiry copy.
+- [x] 3.8 tRPC context resolves the session; `protectedProcedure` throws `UNAUTHORIZED`
       without one. Sign out revokes the row.
-- [ ] 3.9 Client: landing page with the email field + "check your inbox" state; gated app
+- [x] 3.9 Client: landing page with the email field + "check your inbox" state; gated app
       shell behind the session.
-- [ ] 3.10 Rate-limit link requests per email and per IP.
-- [ ] 3.11 Tests: hash-not-token is what's stored; a redeemed token cannot be reused; an
+- [x] 3.10 Rate-limit link requests per email and per IP.
+- [x] 3.11 Tests: hash-not-token is what's stored; a redeemed token cannot be reused; an
       expired token fails; the response is byte-identical for known and unknown emails.
+      *(Unit-tested against in-memory fake stores — see `apps/server/src/auth/*.test.ts` —
+      since real Postgres is still deferred per 2.2.)*
 
 **Exit:** a real inbox round-trip logs a real user into an empty gated shell.
 
