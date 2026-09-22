@@ -22,13 +22,13 @@ export interface GrammarResolution {
   isComplete: boolean;
 }
 
-const EMPTY_RESOLUTION: GrammarResolution = {
-  slot: null,
-  bucket: null,
-  candidates: [],
-  completion: null,
-  isComplete: true,
-};
+/**
+ * A resolution with no live slot — either the template is done, or (for
+ * callers like `usePromptComposer`) the grammar hasn't loaded yet.
+ */
+export function emptyResolution(isComplete: boolean): GrammarResolution {
+  return { slot: null, bucket: null, candidates: [], completion: null, isComplete };
+}
 
 function findBucket(grammar: Grammar, bucketId: string): Bucket {
   const bucket = grammar.buckets.find((b) => b.id === bucketId);
@@ -50,7 +50,7 @@ export function resolveGrammar(
 ): GrammarResolution {
   const slot = grammar.template.slots[committedTerms.length];
   if (!slot) {
-    return EMPTY_RESOLUTION;
+    return emptyResolution(true);
   }
 
   const bucket = findBucket(grammar, slot.bucketId);

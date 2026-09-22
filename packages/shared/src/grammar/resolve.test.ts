@@ -14,25 +14,21 @@ function commit(...entries: Array<[string, string]>): CommittedTerm[] {
   return entries.map(([slotId, value]) => ({ slotId, term: term(slotId === "language" ? "languages" : `${slotId}s`, value) }));
 }
 
+/** Commits every slot of a scratchpad example, in template order. */
+function commitExample({ language, role, taskVerb, artifact, context }: (typeof scratchpadExamples)[number]): CommittedTerm[] {
+  return commit(["language", language], ["role", role], ["taskVerb", taskVerb], ["artifact", artifact], ["context", context]);
+}
+
 describe("resolveGrammar", () => {
-  it.each(scratchpadExamples)(
-    "decomposes scratchpad example: $name",
-    ({ language, role, taskVerb, artifact, context, expected }) => {
-      const committed = commit(
-        ["language", language],
-        ["role", role],
-        ["taskVerb", taskVerb],
-        ["artifact", artifact],
-        ["context", context],
-      );
-      // After committing every slot the resolution reports completion and the
-      // rendered text plus the trailing literal matches the example verbatim.
-      const resolution = resolveGrammar(grammar, committed, "");
-      expect(resolution.isComplete).toBe(true);
-      expect(resolution.slot).toBeNull();
-      expect(renderCommitted(grammar, committed) + grammar.template.trailingLiteral).toBe(expected);
-    },
-  );
+  it.each(scratchpadExamples)("decomposes scratchpad example: $name", (example) => {
+    const committed = commitExample(example);
+    // After committing every slot the resolution reports completion and the
+    // rendered text plus the trailing literal matches the example verbatim.
+    const resolution = resolveGrammar(grammar, committed, "");
+    expect(resolution.isComplete).toBe(true);
+    expect(resolution.slot).toBeNull();
+    expect(renderCommitted(grammar, committed) + grammar.template.trailingLiteral).toBe(example.expected);
+  });
 
   it("narrows to a single unambiguous candidate on an unambiguous prefix", () => {
     const resolution = resolveGrammar(grammar, [], "du");
@@ -60,13 +56,7 @@ describe("resolveGrammar", () => {
   });
 
   it("reports completion once every slot is committed (end-of-template)", () => {
-    const committed = commit(
-      ["language", "dutch"],
-      ["role", "teacher"],
-      ["taskVerb", "help"],
-      ["artifact", "email"],
-      ["context", "to_my_college_professor"],
-    );
+    const committed = commitExample(scratchpadExamples[0]!);
     const resolution = resolveGrammar(grammar, committed, "");
     expect(resolution.isComplete).toBe(true);
     expect(resolution.slot).toBeNull();

@@ -1,13 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { type CommittedTerm, type Grammar, type GrammarResolution, resolveGrammar } from "@translator/shared";
-
-const LOADING_RESOLUTION: GrammarResolution = {
-  slot: null,
-  bucket: null,
-  candidates: [],
-  completion: null,
-  isComplete: false,
-};
+import { type CommittedTerm, type Grammar, type GrammarResolution, emptyResolution, resolveGrammar } from "@translator/shared";
 
 export interface PromptComposer {
   committedTerms: CommittedTerm[];
@@ -34,7 +26,7 @@ export function usePromptComposer(grammar: Grammar | undefined): PromptComposer 
   const [draftText, setDraftTextState] = useState("");
 
   const resolution = useMemo(
-    () => (grammar ? resolveGrammar(grammar, committedTerms, draftText) : LOADING_RESOLUTION),
+    () => (grammar ? resolveGrammar(grammar, committedTerms, draftText) : emptyResolution(false)),
     [grammar, committedTerms, draftText],
   );
 
