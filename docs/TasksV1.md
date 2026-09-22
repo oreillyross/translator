@@ -53,8 +53,12 @@ entirely, so this phase is mostly YAML and one pure function's data model.
 - [x] 2.1 `packages/db` — Drizzle + `postgres` (postgres.js), connection from validated env,
       migration setup.
 - [ ] 2.2 Provision Postgres on Railway; connect local dev to it. *(Deferred — needs a real
-      Railway project/credentials; schema, client and migration tooling are ready to point
-      at it once provisioned.)*
+      Railway project/credentials. The SQL migration is now generated and committed
+      (`packages/db/migrations/0000_third_rocket_racer.sql`, via `pnpm --filter @translator/db
+      run db:generate`) — point `DATABASE_URL` at any reachable Postgres, run
+      `pnpm --filter @translator/db run db:migrate`, and auth is live. Until this step is
+      done, every `auth.requestLink` call fails with a 500 (`connect ECONNREFUSED`), since
+      there's no database for the magic-token insert to land in.)*
 - [x] 2.3 Schema — exactly three tables: `user`, `session`, `magic_token`. Nothing else.
 - [x] 2.4 Zod grammar schemas in `packages/shared`: `Term` (display text, optional `article`
       on language terms), `Bucket`, `Slot` (ordered, bucket-bound, with its literal
