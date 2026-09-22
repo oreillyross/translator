@@ -55,6 +55,15 @@ export function App() {
     );
   }
 
+  if (session.isError) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-3 bg-dm-ink p-8 text-dm-cream">
+        <p className="text-dm-blush">Can't reach Translator right now.</p>
+        <p className="text-sm text-dm-cream/70">Check your connection and try again.</p>
+      </main>
+    );
+  }
+
   if (!session.data) {
     return <Landing />;
   }
@@ -72,6 +81,12 @@ export function App() {
       </div>
 
       <div className="flex w-full max-w-2xl flex-col gap-6">
+        {grammar.isLoading && <p className="text-sm text-dm-cream/60">Loading vocabulary…</p>}
+        {grammar.isError && (
+          <p role="alert" className="text-sm text-red-400">
+            Couldn't load the prompt vocabulary. Check your connection and reload.
+          </p>
+        )}
         <PromptComposer
           grammar={grammar.data}
           nextFieldRef={bodyRef}
