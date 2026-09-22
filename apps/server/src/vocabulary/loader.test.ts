@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Grammar } from "@translator/shared";
+import { scratchpadExamples, type Grammar } from "@translator/shared";
 import { loadVocabulary } from "./loader.js";
 
 function findTerm(grammar: Grammar, bucketId: string, value: string) {
@@ -55,42 +55,7 @@ describe("vocabulary loader", () => {
 
   // 2.8 — the four scratchpad example prompts must each decompose into a
   // valid path through the grammar. This test does not get deleted.
-  it.each([
-    {
-      selections: { language: "dutch", role: "teacher", taskVerb: "help", artifact: "email", context: "to_my_college_professor" },
-      expected: "You are a Dutch teacher. Help me to write an email to my college professor.",
-    },
-    {
-      selections: {
-        language: "french",
-        role: "businessman",
-        taskVerb: "advise",
-        artifact: "informal_letter",
-        context: "to_the_business_administration",
-      },
-      expected: "You are a French businessman. Advise me to write an informal letter to the business administration.",
-    },
-    {
-      selections: {
-        language: "german",
-        role: "friend",
-        taskVerb: "help",
-        artifact: "speech",
-        context: "for_my_friends_birthday_party",
-      },
-      expected: "You are a German friend. Help me to write a speech for my friend's birthday party.",
-    },
-    {
-      selections: {
-        language: "italian",
-        role: "real_estate_agent",
-        taskVerb: "help",
-        artifact: "motivation_letter",
-        context: "to_buy_the_house",
-      },
-      expected: "You are an Italian real estate agent. Help me to write a motivation letter to buy the house.",
-    },
-  ])("decomposes scratchpad example: $expected", ({ selections, expected }) => {
+  it.each(scratchpadExamples)("decomposes scratchpad example: $name", ({ expected, ...selections }) => {
     const grammar = loadVocabulary();
     expect(renderPrompt(grammar, selections)).toBe(expected);
   });

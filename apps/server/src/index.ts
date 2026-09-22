@@ -10,14 +10,13 @@ import Fastify from "fastify";
 import { env } from "./env.js";
 import { appRouter } from "./router.js";
 import { createContext } from "./context.js";
-import { loadVocabulary } from "./vocabulary/loader.js";
 import { redeemMagicToken } from "./auth/magicLink.js";
 import { createSession, SESSION_COOKIE_NAME } from "./auth/session.js";
 import { renderAuthErrorPage } from "./auth/errorPage.js";
 
-// Fail fast and loud on a malformed vocabulary file (2.6 / HC-15).
-loadVocabulary();
-
+// appRouter's grammar router parses the vocabulary at import time above, so
+// a malformed YAML file already failed boot fast and loud (2.6 / HC-15)
+// before this line.
 const app = Fastify({ logger: true, trustProxy: true });
 
 await app.register(cors, { origin: env.APP_BASE_URL, credentials: true });

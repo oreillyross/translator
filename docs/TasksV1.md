@@ -107,40 +107,58 @@ readable error.
 
 ---
 
-## Phase 4 — The constrained composer (the hard part)
+## Phase 4 — The constrained composer (the hard part) ✅ COMPLETE
 
 Grew in the grill session: the furniture and article mechanics are now explicit tasks rather
 than implementation details to be discovered.
 
-- [ ] 4.1 `packages/shared` — a pure `resolveGrammar(template, committedTerms, draftText)`:
+- [x] 4.1 `packages/shared` — a pure `resolveGrammar(template, committedTerms, draftText)`:
       given what is committed and what is half-typed, return the current slot, the candidate
       terms, and the single best completion **for that slot only**. No React in it.
-- [ ] 4.2 Unit tests for 4.1: every scratchpad example, prefix ambiguity (`du` → Dutch),
+      (`packages/shared/src/grammar/resolve.ts`.)
+- [x] 4.2 Unit tests for 4.1: every scratchpad example, prefix ambiguity (`du` → Dutch),
       no-match, end-of-template, and the article-selection cases from 2.9.
-- [ ] 4.3 `usePromptComposer` hook — owns committed terms, draft text and cursor state, calls
-      4.1, exposes accept / backtrack / reset.
-- [ ] 4.4 Ghost-text input: one real input over a positioned layer rendering committed terms,
+      (`packages/shared/src/grammar/resolve.test.ts`, 10 tests.)
+- [x] 4.3 `usePromptComposer` hook — owns committed terms, draft text and cursor state, calls
+      4.1, exposes accept / backtrack / reset. (`apps/client/src/composer/usePromptComposer.ts`.)
+- [x] 4.4 Ghost-text input: one real input over a positioned layer rendering committed terms,
       non-editable literals, and the grey completion. No dropdown (HC-6). Must survive font,
       resize and long-line cases without drifting out of alignment.
-- [ ] 4.5 Literals as furniture: `You are `, `. `, ` me to write ` are pre-rendered and
+      (`apps/client/src/composer/PromptComposer.tsx` — the draft `<input>` auto-sizes to its
+      own content via a mirror-span measurement (`useMirrorWidth.ts`) and sits inline in a
+      wrapping flex row alongside the committed/literal/ghost spans, so layout — not pixel
+      offsets — handles wrapping and resize.)
+- [x] 4.5 Literals as furniture: `You are `, `. `, ` me to write ` are pre-rendered and
       non-editable; the cursor starts after `You are `; they are never typed and never
       deletable as text.
-- [ ] 4.6 Article resolution: committing a language term renders its `article` into the
+- [x] 4.6 Article resolution: committing a language term renders its `article` into the
       furniture (`You are an Italian `), with no inflection logic anywhere.
-- [ ] 4.7 Keys: `Tab` / `→`-at-end accepts the completion and advances the slot; `Backspace`
+- [x] 4.7 Keys: `Tab` / `→`-at-end accepts the completion and advances the slot; `Backspace`
       at slot start un-commits the previous term (and its article); `Esc` clears the draft.
-- [ ] 4.8 Reject any keystroke that cannot lead to a valid term in the current slot — the box
-      physically cannot hold invalid text (HC-1).
-- [ ] 4.9 `Enter` on a complete prompt moves focus to the body box.
-- [ ] 4.10 Committed terms in `--dm-cream`, literals dimmer, ghost in `--dm-blush` at reduced
-      opacity; a clear "prompt complete" signal.
-- [ ] 4.11 `grammar.get` tRPC query, fetched once on load and cached by TanStack Query. All
+- [x] 4.8 Reject any keystroke that cannot lead to a valid term in the current slot — the box
+      physically cannot hold invalid text (HC-1). (`usePromptComposer`'s `setDraftText`.)
+- [x] 4.9 `Enter` on a complete prompt moves focus to the body box.
+- [x] 4.10 Committed terms in `--dm-cream`, literals dimmer, ghost in `--dm-blush` at reduced
+      opacity; a clear "prompt complete" signal (leaf-green check + copy).
+- [x] 4.11 `grammar.get` tRPC query, fetched once on load and cached by TanStack Query. All
       resolution runs client-side against that copy — zero network in the keystroke path.
-- [ ] 4.12 Accessibility: correct ARIA for the prediction, screen-reader-announced
-      completions, gold focus ring everywhere.
+      (`apps/server/src/routers/grammar.ts`, parsed once at module load; wired into
+      `App.tsx` via `trpc.grammar.get.useQuery()`.)
+- [x] 4.12 Accessibility: correct ARIA for the prediction (`aria-label` naming the live slot,
+      `aria-describedby` for the key hints), screen-reader-announced completions
+      (`aria-live="polite"`), gold focus ring everywhere (inherited from the global
+      `:focus-visible` rule).
+
+Covered by 5 component tests in `apps/client/src/composer/PromptComposer.test.tsx`: ghost
+completion while typing, HC-1 keystroke rejection, Tab-accept with correct article, Backspace
+un-commit, and full completion → Enter → body-box focus.
 
 **Exit:** all four scratchpad prompts are composable with keyboard only, nothing outside the
 grammar can be typed, and no keystroke touches the network.
+
+Not yet wired: the body box is a plain, unstyled-beyond-theme placeholder — it has no
+Translate button yet (Phase 5 owns that), and the composed system prompt is captured in
+`App.tsx` state via `onPromptChange` but not yet sent anywhere.
 
 ---
 
