@@ -81,6 +81,13 @@ export function PromptComposer({ grammar, nextFieldRef, onPromptChange }: Prompt
   const ghost = resolution.completion ? resolution.completion.display.slice(draftText.length) : "";
   const currentSlotLabel = resolution.slot ? (SLOT_LABELS[resolution.slot.id] ?? resolution.slot.id) : null;
 
+  let liveAnnouncement = "No matching term.";
+  if (isComplete) {
+    liveAnnouncement = "Prompt complete.";
+  } else if (resolution.completion) {
+    liveAnnouncement = `Suggesting ${resolution.completion.display}`;
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div
@@ -156,11 +163,7 @@ export function PromptComposer({ grammar, nextFieldRef, onPromptChange }: Prompt
       </div>
 
       <div aria-live="polite" className="sr-only">
-        {isComplete
-          ? "Prompt complete."
-          : resolution.completion
-            ? `Suggesting ${resolution.completion.display}`
-            : "No matching term."}
+        {liveAnnouncement}
       </div>
 
       {isComplete && (

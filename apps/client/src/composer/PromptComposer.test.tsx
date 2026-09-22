@@ -2,35 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRef } from "react";
 import { describe, expect, it } from "vitest";
-import type { Grammar } from "@translator/shared";
+import { sampleGrammar as grammar } from "@translator/shared";
 import { PromptComposer } from "./PromptComposer.js";
-
-const grammar: Grammar = {
-  template: {
-    id: "v1-template",
-    trailingLiteral: ".",
-    slots: [
-      { id: "language", bucketId: "languages", prefix: "You are ", suffix: "", rendersArticle: true },
-      { id: "role", bucketId: "roles", prefix: " ", suffix: "", rendersArticle: false },
-      { id: "taskVerb", bucketId: "taskVerbs", prefix: ". ", suffix: "", rendersArticle: false },
-      { id: "artifact", bucketId: "artifacts", prefix: " me to write ", suffix: "", rendersArticle: false },
-      { id: "context", bucketId: "contexts", prefix: " ", suffix: "", rendersArticle: false },
-    ],
-  },
-  buckets: [
-    {
-      id: "languages",
-      terms: [
-        { value: "dutch", display: "Dutch", article: "a" },
-        { value: "french", display: "French", article: "a" },
-      ],
-    },
-    { id: "roles", terms: [{ value: "teacher", display: "teacher" }] },
-    { id: "taskVerbs", terms: [{ value: "help", display: "Help" }] },
-    { id: "artifacts", terms: [{ value: "email", display: "an email" }] },
-    { id: "contexts", terms: [{ value: "to_my_college_professor", display: "to my college professor" }] },
-  ],
-};
 
 function Harness() {
   const bodyRef = useRef<HTMLTextAreaElement>(null);

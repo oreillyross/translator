@@ -1,73 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Grammar, Term } from "./schema.js";
+import type { Term } from "./schema.js";
 import { type CommittedTerm, renderCommitted, resolveGrammar } from "./resolve.js";
-
-/**
- * A small fixture grammar, shaped exactly like the seeded production
- * vocabulary (same template, same slot ids), so these tests exercise the
- * pure function in isolation from the YAML loader (which lives in
- * apps/server and is tested there against the real seed).
- */
-const grammar: Grammar = {
-  template: {
-    id: "v1-template",
-    trailingLiteral: ".",
-    slots: [
-      { id: "language", bucketId: "languages", prefix: "You are ", suffix: "", rendersArticle: true },
-      { id: "role", bucketId: "roles", prefix: " ", suffix: "", rendersArticle: false },
-      { id: "taskVerb", bucketId: "taskVerbs", prefix: ". ", suffix: "", rendersArticle: false },
-      { id: "artifact", bucketId: "artifacts", prefix: " me to write ", suffix: "", rendersArticle: false },
-      { id: "context", bucketId: "contexts", prefix: " ", suffix: "", rendersArticle: false },
-    ],
-  },
-  buckets: [
-    {
-      id: "languages",
-      terms: [
-        { value: "arabic", display: "Arabic", article: "an" },
-        { value: "armenian", display: "Armenian", article: "an" },
-        { value: "dutch", display: "Dutch", article: "a" },
-        { value: "french", display: "French", article: "a" },
-        { value: "german", display: "German", article: "a" },
-        { value: "italian", display: "Italian", article: "an" },
-      ],
-    },
-    {
-      id: "roles",
-      terms: [
-        { value: "businessman", display: "businessman" },
-        { value: "friend", display: "friend" },
-        { value: "real_estate_agent", display: "real estate agent" },
-        { value: "teacher", display: "teacher" },
-      ],
-    },
-    {
-      id: "taskVerbs",
-      terms: [
-        { value: "advise", display: "Advise" },
-        { value: "help", display: "Help" },
-      ],
-    },
-    {
-      id: "artifacts",
-      terms: [
-        { value: "email", display: "an email" },
-        { value: "informal_letter", display: "an informal letter" },
-        { value: "motivation_letter", display: "a motivation letter" },
-        { value: "speech", display: "a speech" },
-      ],
-    },
-    {
-      id: "contexts",
-      terms: [
-        { value: "for_my_friends_birthday_party", display: "for my friend's birthday party" },
-        { value: "to_buy_the_house", display: "to buy the house" },
-        { value: "to_my_college_professor", display: "to my college professor" },
-        { value: "to_the_business_administration", display: "to the business administration" },
-      ],
-    },
-  ],
-};
+import { sampleGrammar as grammar } from "./testFixtures.js";
 
 function term(bucketId: string, value: string): Term {
   const bucket = grammar.buckets.find((b) => b.id === bucketId);
