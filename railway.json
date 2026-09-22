@@ -5,6 +5,7 @@
     "buildCommand": "pnpm install --frozen-lockfile && pnpm build"
   },
   "deploy": {
+    "preDeployCommand": "pnpm --filter @translator/db run db:migrate",
     "startCommand": "pnpm --filter @translator/server run start",
     "healthcheckPath": "/health",
     "restartPolicyType": "ON_FAILURE"
