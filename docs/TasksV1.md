@@ -162,21 +162,32 @@ Translate button yet (Phase 5 owns that), and the composed system prompt is capt
 
 ---
 
-## Phase 5 — Translate
+## Phase 5 — Translate ✅ COMPLETE
 
-- [ ] 5.1 LLM adapter (`translate(systemPrompt, body) => string`) over `@anthropic-ai/sdk`.
+- [x] 5.1 LLM adapter (`translate(systemPrompt, body) => string`) over `@anthropic-ai/sdk`.
       Model from `ANTHROPIC_MODEL`. **No `thinking`, no `effort`** (HC-16).
-- [ ] 5.2 Baked-in base system prompt, composed with the user's grammar-built prompt and
+      (`apps/server/src/llm/adapter.ts`.)
+- [x] 5.2 Baked-in base system prompt, composed with the user's grammar-built prompt and
       carrying `Write your response entirely in {language}.` explicitly. Server-side only —
-      it never reaches the client.
-- [ ] 5.3 `translate.run` tRPC procedure — protected, Zod in/out, body length cap, timeout,
-      typed error surface.
-- [ ] 5.4 Body textarea: free text (HC-2), autosize, char counter near the cap.
-- [ ] 5.5 `Tab` from the body focuses Translate; `Cmd/Ctrl+Enter` submits.
-- [ ] 5.6 Result panel with loading, error and empty states.
-- [ ] 5.7 Copy button/icon with a confirmation tick.
-- [ ] 5.8 Per-user rate limit and a hard cap on request size.
-- [ ] 5.9 Log latency, token usage and failures server-side. **Never log the body text.**
+      it never reaches the client. (`apps/server/src/llm/basePrompt.ts`; the client sends the
+      composed prompt and the chosen language's display name separately, never the
+      instruction sentence itself.)
+- [x] 5.3 `translate.run` tRPC procedure — protected, Zod in/out, body length cap
+      (`TRANSLATE_BODY_MAX_CHARS` in `packages/shared`), a 30s request timeout via the
+      Anthropic SDK's own `timeout` option, typed error surface (`TOO_MANY_REQUESTS`,
+      `TIMEOUT`, `BAD_GATEWAY`). (`apps/server/src/routers/translate.ts`.)
+- [x] 5.4 Body textarea: free text (HC-2), resizable, char counter near the cap.
+- [x] 5.5 `Tab` from the body focuses Translate; `Cmd/Ctrl+Enter` submits.
+- [x] 5.6 Result panel with loading, error and empty states.
+- [x] 5.7 Copy button/icon with a confirmation tick.
+- [x] 5.8 Per-user rate limit (`apps/server/src/llm/rateLimit.ts`, 30/hour) and a hard cap on
+      request size (5.3).
+- [x] 5.9 Log latency, token usage and failures server-side. **Never log the body text** —
+      only counts and durations ever reach `ctx.logError`.
+
+Covered by 4 tests in `apps/server/src/routers/translate.test.ts`: auth is required, a
+successful call returns the adapter's translation, the language instruction is appended
+server-side (never client-supplied), and an empty body is rejected.
 
 **Exit:** the full loop works — compose, write, translate, copy.
 

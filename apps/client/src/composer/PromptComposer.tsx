@@ -16,8 +16,13 @@ export interface PromptComposerProps {
   grammar: Grammar | undefined;
   /** Where Enter should move focus once the prompt is complete (4.9). */
   nextFieldRef: RefObject<HTMLElement>;
-  /** Fired with the full composed system prompt whenever composition completes; `null` while incomplete. */
-  onPromptChange?: (prompt: string | null) => void;
+  /**
+   * Fired with the full composed system prompt and the chosen language's
+   * display name whenever composition completes; both `null` while
+   * incomplete. The language is surfaced separately from the prompt string
+   * so callers (Phase 5's translate call) don't need to parse it back out.
+   */
+  onPromptChange?: (prompt: string | null, language: string | null) => void;
 }
 
 /**
@@ -34,10 +39,11 @@ export function PromptComposer({ grammar, nextFieldRef, onPromptChange }: Prompt
   useEffect(() => {
     if (!onPromptChange) return;
     if (!grammar || !isComplete) {
-      onPromptChange(null);
+      onPromptChange(null, null);
       return;
     }
-    onPromptChange(renderCommitted(grammar, committedTerms) + grammar.template.trailingLiteral);
+    const language = committedTerms.find((t) => t.slotId === "language")?.term.display ?? null;
+    onPromptChange(renderCommitted(grammar, committedTerms) + grammar.template.trailingLiteral, language);
   }, [grammar, committedTerms, isComplete, onPromptChange]);
 
   // Completion swaps in a fresh (initially unfocused) hidden input so
