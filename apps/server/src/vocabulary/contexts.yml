@@ -26,7 +26,5 @@ terms:
     display: for a school application
   - value: to_a_hotel
     display: to a hotel
-  - value: for_a_funeral
-    display: for a funeral
   - value: to_a_local_council
     display: to a local council
