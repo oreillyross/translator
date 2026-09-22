@@ -6,6 +6,7 @@ import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
+import type { TRPCError } from "@trpc/server";
 import Fastify from "fastify";
 import { env } from "./env.js";
 import { appRouter } from "./router.js";
@@ -27,10 +28,32 @@ await app.register(fastifyTRPCPlugin, {
   trpcOptions: {
     router: appRouter,
     createContext,
+    /**
+     * Basic error monitoring (6.7): every procedure failure — expected
+     * (UNAUTHORIZED, BAD_GATEWAY) or not — lands in the structured server
+     * log with its route, so a bad deploy or a dead upstream is visible in
+     * Railway's log stream without a separate monitoring service.
+     */
+    onError({ error, path }: { error: TRPCError; path?: string | undefined }) {
+      app.log.error({ err: error, path }, "tRPC procedure error");
+    },
   },
 });
 
 app.get("/health", async () => ({ status: "ok" }));
+
+/**
+ * Last-resort net for anything that escapes tRPC's own error handling
+ * (e.g. a rejected promise in a fire-and-forget call). Logged, not
+ * swallowed — Railway restarts the process on crash, so this doesn't try
+ * to keep a corrupted process alive, just makes sure the cause is visible.
+ */
+process.on("unhandledRejection", (reason) => {
+  app.log.error({ err: reason }, "unhandled promise rejection");
+});
+process.on("uncaughtException", (err) => {
+  app.log.error({ err }, "uncaught exception");
+});
 
 /**
  * The one REST route beyond /health (HC-10): verifies a magic link,

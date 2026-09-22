@@ -195,18 +195,69 @@ server-side (never client-supplied), and an empty body is rejected.
 
 ## Phase 6 — Polish and ship
 
-- [ ] 6.1 Full Midnight Moon pass over every screen; dark-first; responsive down to mobile.
-- [ ] 6.2 Empty / loading / error / offline states everywhere.
-- [ ] 6.3 End-to-end keyboard walkthrough with no mouse (HC-5 acceptance).
+- [x] 6.1 Full Midnight Moon pass over every screen; dark-first; responsive down to mobile.
+      Verified by driving a real logged-in session (local Postgres + a minted magic token,
+      no mocks) through headless Chromium at both desktop (1280×900) and mobile (375×812)
+      viewports — landing, composer, body, and result panel all render correctly with no
+      overflow, the Midnight Moon palette, and a visible gold focus ring at every step. No
+      changes were needed; Phases 4–5 already applied the theme consistently.
+- [x] 6.2 Empty / loading / error / offline states everywhere. Landing → "check your inbox";
+      session-loading spinner text; a new session-error state ("Can't reach Translator right
+      now") for when the server is unreachable; grammar loading/error states in the composer
+      area (previously silent); Translate's own loading ("Translating…"), error ("Translation
+      failed. Try again." — verified for real against a live server with an invalid Anthropic
+      key, see 6.3) and result states were already in place from Phase 5.
+- [x] 6.3 End-to-end keyboard walkthrough with no mouse (HC-5 acceptance). Driven for real
+      (not mocked): local Postgres, a minted magic-link token, the actual Fastify + Vite dev
+      servers, headless Chromium. Confirmed keyboard-only: email → Enter submits the sign-in
+      request; the composer opens with the cursor already after "You are "; typing + Tab
+      commits each of the four slots in turn with the correct article rendered
+      ("a Dutch friend", "an Italian teacher"); Enter on a complete prompt moves focus to the
+      body box; Tab from the body moves focus to Translate; Enter presses it. Verified for
+      two full grammar paths (a Dutch-friend birthday email, an Italian-teacher motivation
+      letter) at both desktop and mobile viewports.
 - [x] 6.4 Deploy server + Postgres to Railway as **one service** (CLAUDE.md §4.7) — the
       Fastify server serves the built client same-origin, so the magic-link cookie needs no
       cross-subdomain config. Root `railway.json` builds and starts it; env configured in
       prod. Manual step: delete the auto-created `@translator/client` service in the Railway
       dashboard, since a file in the repo can't do that part.
-- [ ] 6.5 Production magic-link round-trip on the real domain.
-- [ ] 6.6 README: run locally, deploy, and add a new vocabulary term.
-- [ ] 6.7 Basic error monitoring and a health check.
-- [ ] 6.8 Walk the Vision.md success criteria and record the actual timings.
+- [ ] 6.5 Production magic-link round-trip on the real domain. *(Deferred — same reason as
+      2.2/3.1: needs an actual Railway deploy with a real Postgres instance, a real Resend
+      sender domain and a real `APP_BASE_URL`, none of which exist outside a live deploy.
+      6.3's local walkthrough exercises the identical code path — mint a token,
+      `GET /auth/callback?token=…`, cookie set, session live — against a real (if
+      locally-provisioned) Postgres, so the mechanics are verified; only the production
+      infrastructure itself is unverified.)*
+- [x] 6.6 README: run locally, deploy, and add a new vocabulary term. (`README.md`.)
+- [x] 6.7 Basic error monitoring and a health check. `/health` already existed (1.3); added a
+      tRPC `onError` hook that logs every procedure failure (path + error) through Fastify's
+      structured logger, plus process-level `unhandledRejection`/`uncaughtException`
+      handlers so nothing fails silently — no new service, just making sure Railway's log
+      stream shows the cause when something breaks. (`apps/server/src/index.ts`.)
+- [x] 6.8 Walk the Vision.md success criteria and record the actual timings.
+      1. *Under 3 minutes first-time, including checking email* — not independently timed
+         (requires a real inbox round-trip, see 6.5), but the in-app mechanical path (landing
+         → composed prompt → body → Translate pressed) measured **~1.0s** end-to-end when
+         driven programmatically; a human typing at a normal pace, plus reading the email and
+         clicking through, comfortably clears 3 minutes.
+      2. *Under 60 seconds returning* — same mechanical path, well under a second once
+         logged in; a human re-composing a prompt and writing a body by hand (not scripted)
+         is a matter of seconds per slot, so 60s is not a binding constraint in practice.
+      3. *Zero badly-worded prompts reach the model* — true by construction: HC-1 physically
+         rejects any keystroke that doesn't lead to a valid term (4.8), so nothing else can
+         reach `translate.run`.
+      4. *New persona/artifact/context is a one-line YAML change* — true by construction and
+         demonstrated live: `apps/server/src/vocabulary/contexts.yml` was already trimmed by
+         two lines directly on `main` during Phase 5's review with no code change anywhere.
+      5. *A native speaker can't tell it's machine-produced* — not evaluable without a real
+         Anthropic API key and a human judge; out of scope for this session.
+
+Covered by the composer/router test suites already listed under Phases 4–5; Phase 6 added no
+new automated tests, since its remaining scope was manual verification, documentation and
+observability rather than new application logic.
+
+**Exit:** a stranger can use it on the public URL — pending 6.5's real deploy round-trip,
+everything else in this phase is done.
 
 **Exit:** a stranger can use it on the public URL.
 
